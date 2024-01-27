@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-const dbUrl = "mongodb+srv://Admin:admin123@test1.cj0q6fl.mongodb.net/";
+const mongoose = require("mongoose");
 mongoose.connect(dbUrl);
 
 const db = mongoose.connection;

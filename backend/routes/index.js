@@ -1,5 +1,5 @@
 const express = require("express");
-import userRouter from "./user";
+const userRouter = require("./user");
 
 const rootRouter = express.Router();
 
@@ -8,4 +8,4 @@ rootRouter.get((req, res) => {
   res.json({ message: "This is the root route" });
 });
 
-module.exports(rootRouter);
+module.exports = rootRouter;

@@ -1,6 +1,6 @@
 const express = require("express");
-import rootRouter from "./routes/index";
-import cors from "cors";
+const rootRouter = require("./routes/index");
+const cors = require("cors");
 
 const port = 3000;
 const app = express();
