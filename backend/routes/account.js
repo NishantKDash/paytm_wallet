@@ -8,7 +8,7 @@ const Pay = require("../payment");
 accountRouter.use(express.json());
 
 const payeeSchema = zod.object({
-  to: zod.string().email(),
+  to: zod.string(),
   amount: zod.number(),
 });
 
@@ -29,29 +29,8 @@ accountRouter.post("/transfer", authMiddleware, async (req, res) => {
     const payee = req.body;
     const { success } = payeeSchema.safeParse(payee);
     if (!success) res.status(411).json({ message: "Invalid Inputs" });
-
-    const receiver = await User.findOne({ username: payee.to });
-    const sender = await User.findOne({ _id: req.userId });
-    if (!receiver) return res.status(404).json({ message: "Payee not found" });
-    if (!sender) return res.status(404).json({ message: "Payer not found" });
-
-    const payerAccount = await Account.findOne({ userId: req.userId });
-    const payeeAccount = await Account.findOne({ userId: receiver._id });
-
-    try {
-      const output = await Pay(
-        sender,
-        payerAccount,
-        receiver,
-        payeeAccount,
-        payee.amount
-      );
-      return res
-        .status(201)
-        .json({ message: "Transaction completed successfully" });
-    } catch (e) {
-      return res.status(201).json({ message: e.message });
-    }
+    let output = await Pay(req.userId, payee.to, payee.amount);
+    return res.status(201).json({ message: output });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Internal Server Error" });
@@ -61,12 +40,27 @@ accountRouter.post("/transfer", authMiddleware, async (req, res) => {
 accountRouter.get("/transactions", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
-    const transactions = await History.find({ userId: userId });
+    const user = await User.findOne({ _id: userId });
+    const transactions = await History.find({
+      $or: [
+        {
+          payerName: {
+            $regex: user.username,
+          },
+        },
+        {
+          payeeName: {
+            $regex: user.username,
+          },
+        },
+      ],
+    });
     let transaction_dto = [];
     transactions.forEach((transaction) => {
       transaction_dto.push({
         id: transaction._id,
-        payee: transaction.payee,
+        payee: transaction.payeeName,
+        payer: transaction.payerName,
         amount: transaction.amount,
       });
     });

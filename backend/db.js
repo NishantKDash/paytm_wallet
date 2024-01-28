@@ -50,25 +50,24 @@ const accountsSchema = new mongoose.Schema({
 });
 
 const transactionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId, // Reference to User model
-    ref: "User",
-    required: true,
-  },
   payee: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   payer: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  payeeName: {
+    type: String,
+    required: true,
+  },
+  payerName: {
     type: String,
     required: true,
   },
   amount: {
     type: Number,
-    required: true,
-  },
-  type: {
-    type: String,
     required: true,
   },
 });
