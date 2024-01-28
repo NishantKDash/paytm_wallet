@@ -3,7 +3,7 @@ const zod = require("zod");
 const { JWT_SECRET } = require("../config");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const User = require("../db");
+const { User, Account } = require("../db");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const userRouter = express.Router();
@@ -39,7 +39,7 @@ userRouter.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-    const createdUser = User.create({
+    const createdUser = await User.create({
       username: req.body.username,
       password: hashedPassword,
       firstName: req.body.firstName,
@@ -53,6 +53,11 @@ userRouter.post("/signup", async (req, res) => {
       },
       JWT_SECRET
     );
+
+    const createdAccount = Account.create({
+      userId: userId,
+      balance: Math.random() * 10000,
+    });
 
     return res.status(201).json({
       message: `User created with username ${req.body.username}`,

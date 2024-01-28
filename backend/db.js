@@ -37,6 +37,44 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const User = mongoose.model("User", userSchema);
+const accountsSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId, // Reference to User model
+    ref: "User",
+    required: true,
+  },
+  balance: {
+    type: Number,
+    required: true,
+  },
+});
 
-module.exports = User;
+const transactionSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId, // Reference to User model
+    ref: "User",
+    required: true,
+  },
+  payee: {
+    type: String,
+    required: true,
+  },
+  payer: {
+    type: String,
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+});
+
+const User = mongoose.model("User", userSchema);
+const Account = mongoose.model("Account", accountsSchema);
+const History = mongoose.model("History", transactionSchema);
+
+module.exports = { User, Account, History };
