@@ -29,13 +29,13 @@ userRouter.get("/about", (req, res) => {
 userRouter.post("/signup", async (req, res) => {
   try {
     const { success } = signUpSchema.safeParse(req.body);
-    if (!success) return res.status(411).json({ message: "Invalid Input" });
+    if (!success) return res.status(411).json({ error: "Invalid Input" });
     const existingUser = await User.findOne({
       username: req.body.username,
     });
 
     if (existingUser)
-      return res.status(411).json({ message: "Username already exists" });
+      return res.status(411).json({ error: "Username already exists" });
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -65,7 +65,7 @@ userRouter.post("/signup", async (req, res) => {
     });
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -77,16 +77,16 @@ userRouter.post("/signin", async (req, res) => {
       username: username,
     });
 
-    if (!user) return res.status(404).json({ message: "User does not exist" });
+    if (!user) return res.status(404).json({ error: "User does not exist" });
 
     if (!bcrypt.compareSync(password, user.password))
-      return res.status(401).json({ message: "Wrong Username / Password" });
+      return res.status(401).json({ error: "Wrong Username / Password" });
     const userId = user._id;
     const token = jwt.sign({ userId }, JWT_SECRET);
     return res.status(201).json({ token: token });
   } catch (e) {
     console.log(e);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -152,6 +152,19 @@ userRouter.get("/bulk", authMiddleware, async (req, res) => {
     console.log(e);
     res.status(500).json({ error: "Internal Server Error" });
   }
+});
+
+userRouter.get("/user", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  const user = await User.findOne({ _id: userId });
+  const account = await Account.findOne({ userId });
+  let user_dto = {
+    userId: userId,
+    name: user.firstName,
+    balance: account.balance.toFixed(2),
+  };
+
+  return res.status(201).json(user_dto);
 });
 
 module.exports = userRouter;
