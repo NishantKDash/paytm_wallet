@@ -17,7 +17,7 @@ accountRouter.get("/balance", authMiddleware, async (req, res) => {
     const account = await Account.findOne({ userId: req.userId });
     if (!account)
       return res.status(404).json({ message: "No such account exist" });
-    return res.status(201).json({ balance: account.balance });
+    return res.status(201).json({ balance: account.balance.toFixed(2) });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Internal Server Error" });

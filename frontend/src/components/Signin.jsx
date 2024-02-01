@@ -15,10 +15,6 @@ export default function Signin() {
     }, 5 * 1000);
   }, [message]);
 
-  useEffect(() => {
-    if (localStorage.getItem("token")) navigate("/");
-  }, []);
-
   async function handleSubmit(e) {
     e.preventDefault();
     let user_dto = {
